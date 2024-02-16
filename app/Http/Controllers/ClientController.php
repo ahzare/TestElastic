@@ -34,4 +34,13 @@ class ClientController extends Controller
         }
         return response()->json($this->elasticsearch->bulk($param));
     }
+
+    public function index($size = 100)
+    {
+        $response = $this->elasticsearch->search(['size' => $size]);
+
+        $list = collect($response['hits']['hits'])->pluck('_source')
+            ->toArray();
+        return view('index', compact('list'));
+    }
 }
