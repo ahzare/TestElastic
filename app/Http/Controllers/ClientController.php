@@ -7,7 +7,6 @@ use Elastic\Elasticsearch\ClientBuilder;
 class ClientController extends Controller
 {
     protected $elasticsearch;
-    protected $elastica;
 
     public function __construct()
     {
@@ -42,5 +41,29 @@ class ClientController extends Controller
         $list = collect($response['hits']['hits'])->pluck('_source')
             ->toArray();
         return view('index', compact('list'));
+    }
+
+    public function wordCloud()
+    {
+        $params = [
+            'index' => 'docs',
+            'body' => [
+                'aggs' => [
+                    'word_cloud' => [
+                        'terms' => [
+                            'field' => 'text',
+                            'size' => 100
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        $response = $this->elasticsearch->search($params);
+
+        $words = collect($response['aggregations']['word_cloud']['buckets'])
+            ->toArray();
+
+        return view('word_cloud', compact('words'));
     }
 }

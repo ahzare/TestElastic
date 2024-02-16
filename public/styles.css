@@ -1,0 +1,14 @@
+.container {
+    margin: 50px auto;
+    text-align: center;
+}
+
+.word-cloud {
+    margin-top: 30px;
+}
+
+.word-cloud span {
+    display: inline-block;
+    margin: 5px;
+    padding: 5px 10px;
+}

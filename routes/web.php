@@ -16,3 +16,4 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('import-data', [ClientController::class, 'importData'])->name('import-data');
 Route::get('index/{size?}', [ClientController::class, 'index'])->name('index');
+Route::get('word-cloud', [ClientController::class, 'wordCloud'])->name('word-cloud');
