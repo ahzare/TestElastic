@@ -10,15 +10,18 @@ class ClientController extends Controller
 
     public function __construct()
     {
+        // build client, connect to elastic search
         $this->elasticsearch = ClientBuilder::create()
             ->setBasicAuthentication('elastic', 'q4G2tEOOV=2Ku*HFkoyR')->build();
 
+        // check for index existence
         if (!$this->elasticsearch->indices()->exists(['index' => 'docs'])->asBool())
             $this->createIndex($this->elasticsearch);
     }
 
     public function importData()
     {
+        // delete old data and import from file
         $this->elasticsearch->indices()->delete(['index' => 'docs']);
         $this->createIndex($this->elasticsearch);
 
@@ -42,6 +45,7 @@ class ClientController extends Controller
 
     public function index($size = 100)
     {
+        // show data depend on size
         $response = $this->elasticsearch->search(['size' => $size]);
 
         $list = collect($response['hits']['hits'])->pluck('_source')
@@ -51,6 +55,7 @@ class ClientController extends Controller
 
     public function wordCloud()
     {
+        // create word cloud
         $params = [
             'index' => 'docs',
             'body' => [
@@ -75,6 +80,7 @@ class ClientController extends Controller
 
     private function createIndex($client)
     {
+        // create index
         $params = [
             'index' => 'docs',
             'body' => [
