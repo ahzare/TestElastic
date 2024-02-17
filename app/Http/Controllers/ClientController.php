@@ -12,10 +12,16 @@ class ClientController extends Controller
     {
         $this->elasticsearch = ClientBuilder::create()
             ->setBasicAuthentication('elastic', 'q4G2tEOOV=2Ku*HFkoyR')->build();
+
+        if (!$this->elasticsearch->indices()->exists(['index' => 'docs'])->asBool())
+            $this->createIndex($this->elasticsearch);
     }
 
     public function importData()
     {
+        $this->elasticsearch->indices()->delete(['index' => 'docs']);
+        $this->createIndex($this->elasticsearch);
+
         $path = public_path() . "/data.json";
         $json = json_decode(file_get_contents($path), true);
 
@@ -65,5 +71,27 @@ class ClientController extends Controller
             ->toArray();
 
         return view('word_cloud', compact('words'));
+    }
+
+    private function createIndex($client)
+    {
+        $params = [
+            'index' => 'docs',
+            'body' => [
+                'mappings' => [
+                    '_source' => [
+                        'enabled' => true
+                    ],
+                    'properties' => [
+                        'text' => [
+                            'type' => 'text',
+                            'fielddata' => true
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        return $client->indices()->create($params);
     }
 }
